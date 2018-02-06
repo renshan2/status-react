@@ -42,7 +42,14 @@
                                                             :main          "env.android.main"
                                                             :output-dir    "target/android"
                                                             :optimizations :none}
-                                         :warning-handlers [status-im.utils.build/warning-handler]}}}
+                                         :warning-handlers [status-im.utils.build/warning-handler]}
+                                        :worker
+                                        {:source-paths ["react-native/src" "src"]
+                                         :figwheel     true
+                                         :compiler     {:output-to     "target/worker/app.js"
+                                                        :main          "status.worker"
+                                                        :output-dir    "target/worker"
+                                                        :optimizations :none}}}}
                         :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]
                                        :timeout          240000}}
              :figwheel [:dev
