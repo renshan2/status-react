@@ -1,24 +1,19 @@
 (ns status-im.chat.handlers 
-  (:require [re-frame.core :refer [after dispatch reg-fx]] 
-            [clojure.string :as string]
-            [status-im.ui.components.styles :refer [default-chat-color]]
-            [status-im.chat.constants :as chat-consts]
-            [status-im.protocol.core :as protocol]
+  (:require [clojure.string :as string]
+            [re-frame.core :as re-frame]
             [status-im.data-store.chats :as chats]
-            [status-im.data-store.messages :as messages] 
-            [status-im.constants :refer [text-content-type
-                                         content-type-command
-                                         content-type-command-request
-                                         console-chat-id]]
+            [status-im.i18n :as i18n]
+            [status-im.protocol.core :as protocol]
+            [status-im.ui.components.styles :as components.styles]
+            [status-im.utils.handlers :as handlers]
             [status-im.utils.random :as random]
-            [status-im.utils.handlers :refer [register-handler register-handler-fx] :as u]
             status-im.chat.events))
 
-(register-handler
+(handlers/register-handler
   :leave-group-chat
   ;; todo order of operations tbd
-  (after (fn [_ _] (dispatch [:navigation-replace :home])))
-  (u/side-effect!
+  (re-frame/after (fn [_ _] (re-frame/dispatch [:navigation-replace :home])))
+  (handlers/side-effect!
    (fn [{:keys [web3 current-chat-id chats current-public-key]} _]
      (let [{:keys [public-key private-key public?]} (chats current-chat-id)]
        (protocol/stop-watching-group!
@@ -32,10 +27,18 @@
                       :private private-key}
            :message  {:from       current-public-key
                       :message-id (random/id)}})))
-     (dispatch [:remove-chat current-chat-id]))))
+     (re-frame/dispatch [:remove-chat current-chat-id]))))
 
-(register-handler :update-group-message
-  (u/side-effect!
+(handlers/register-handler-fx
+  :leave-group-chat?
+  (fn []
+    {:show-confirmation {:title               (str (i18n/label :t/leave) "?")
+                         :content             (i18n/label :t/leave-group-chat-confirmation)
+                         :confirm-button-text (i18n/label :t/leave)
+                         :on-accept           #(re-frame/dispatch [:leave-group-chat])}}))
+
+(handlers/register-handler :update-group-message
+  (handlers/side-effect!
    (fn [{:keys [current-public-key web3 chats]}
         [_ {:keys                                [from]
             {:keys [group-id keypair timestamp]} :payload}]]
@@ -48,16 +51,16 @@
          (when (and (= from (get-in chats [group-id :group-admin]))
                     (or (not (chats/exists? group-id))
                         (chats/new-update? timestamp group-id)))
-           (dispatch [:update-chat! chat])
+           (re-frame/dispatch [:update-chat! chat])
            (when is-active
              (protocol/start-watching-group!
               {:web3     web3
                :group-id group-id
                :identity current-public-key
                :keypair  keypair
-               :callback #(dispatch [:incoming-message %1 %2])}))))))))
+               :callback #(re-frame/dispatch [:incoming-message %1 %2])}))))))))
 
-(reg-fx
+(re-frame/reg-fx
   ::start-watching-group
   (fn [{:keys [group-id web3 current-public-key keypair]}]
     (protocol/start-watching-group!
@@ -65,15 +68,15 @@
       :group-id group-id
       :identity current-public-key
       :keypair  keypair
-      :callback #(dispatch [:incoming-message %1 %2])})))
+      :callback #(re-frame/dispatch [:incoming-message %1 %2])})))
 
-(register-handler-fx
+(handlers/register-handler-fx
   :create-new-public-chat
   (fn [{:keys [db]} [_ topic]]
     (let [exists? (boolean (get-in db [:chats topic]))
           chat    {:chat-id     topic
                    :name        topic
-                   :color       default-chat-color
+                   :color       components.styles/default-chat-color
                    :group-chat  true
                    :public?     true
                    :is-active   true
@@ -87,7 +90,7 @@
        {:dispatch-n [[:navigate-to-clean :home]
                      [:navigate-to-chat topic]]}))))
 
-(reg-fx
+(re-frame/reg-fx
   ::start-listen-group
   (fn [{:keys [new-chat web3 current-public-key]}]
     (let [{:keys [chat-id public-key private-key contacts name]} new-chat
@@ -109,7 +112,7 @@
         :identity current-public-key
         :keypair  {:public  public-key
                    :private private-key}
-        :callback #(dispatch [:incoming-message %1 %2])}))))
+        :callback #(re-frame/dispatch [:incoming-message %1 %2])}))))
 
 (defn group-name-from-contacts [contacts selected-contacts username]
   (->> (select-keys contacts selected-contacts)
@@ -131,14 +134,14 @@
      :public-key  public
      :private-key private
      :name        chat-name
-     :color       default-chat-color
+     :color       components.styles/default-chat-color
      :group-chat  true
      :group-admin current-public-key
      :is-active   true
      :timestamp   (random/timestamp)
      :contacts    selected-contacts'}))
 
-(register-handler-fx
+(handlers/register-handler-fx
   :create-new-group-chat-and-open
   (fn [{:keys [db]} [_ group-name]]
     (let [new-chat (prepare-group-chat (select-keys db [:group/selected-contacts :current-public-key :username
@@ -153,7 +156,7 @@
        :dispatch-n [[:navigate-to-clean :home]
                     [:navigate-to-chat (:chat-id new-chat)]]})))
 
-(register-handler-fx
+(handlers/register-handler-fx
   :group-chat-invite-received
   (fn [{{:keys [current-public-key] :as db} :db}
        [_ {:keys                                                    [from]
@@ -181,7 +184,7 @@
                        [:update-chat! chat]
                        [:add-chat group-id chat])})))))
 
-(register-handler-fx
+(handlers/register-handler-fx
   :show-profile
   (fn [{db :db} [_ identity]]
     {:db (assoc db :contacts/identity identity)
