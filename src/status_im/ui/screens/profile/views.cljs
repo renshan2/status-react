@@ -4,7 +4,6 @@
             [status-im.i18n :as i18n]
             [status-im.ui.components.action-button.action-button :as action-button]
             [status-im.ui.components.action-button.styles :as action-button.styles]
-            [status-im.ui.components.chat-icon.screen :as chat-icon.screen]
             [status-im.ui.components.common.common :as common]
             [status-im.ui.components.common.styles :as common.styles]
             [status-im.ui.components.list-selection :as list-selection]
@@ -12,7 +11,6 @@
             [status-im.ui.components.react :as react]
             [status-im.ui.components.icons.vector-icons :as vector-icons]
             [status-im.ui.components.status-bar.view :as status-bar]
-            [status-im.ui.components.styles :as component.styles]
             [status-im.ui.components.colors :as colors]
             [status-im.ui.components.toolbar.actions :as actions]
             [status-im.ui.components.toolbar.view :as toolbar]
@@ -25,7 +23,9 @@
             [status-im.protocol.core :as protocol]
             [status-im.utils.handlers :as handlers]
             [status-im.ui.components.list.views :as list]
-            [status-im.ui.components.styles :as components.styles]))
+            [status-im.ui.components.styles :as components.styles]
+            [status-im.ui.screens.profile.components.views :as profile.components]
+            [status-im.ui.screens.profile.components.styles :as profile.components.styles]))
 
 (defn my-profile-toolbar []
   [toolbar/toolbar {}
@@ -35,7 +35,7 @@
     {:on-press #(re-frame/dispatch [:my-profile/start-editing-profile])}
     [react/view
      [react/text {:style      common.styles/label-action-text
-                  :uppercase? component.styles/uppercase?} (i18n/label :t/edit)]]]])
+                  :uppercase? components.styles/uppercase?} (i18n/label :t/edit)]]]])
 
 (defn my-profile-edit-toolbar []
   [toolbar/toolbar {}
@@ -66,44 +66,7 @@
                                   #(utils/show-popup (i18n/label :t/error)
                                                      (i18n/label :t/camera-access-error))]))}])
 
-(defn profile-name-input [name on-change-text-event]
-  [react/view
-   [react/text-input
-    {:style          styles/profile-name-input-text
-     :placeholder    ""
-     :default-value  name
-     :auto-focus     true
-     :on-change-text #(when on-change-text-event
-                        (re-frame/dispatch [on-change-text-event %]))}]])
 
-(defn show-profile-icon-actions [options]
-  (when (seq options)
-    (list-selection/show {:title   (i18n/label :t/image-source-title)
-                          :options options})))
-
-(defn profile-header-display [{:keys [name] :as contact}]
-  [react/view styles/profile-header-display
-   [chat-icon.screen/my-profile-icon {:account contact
-                                      :edit?   false}]
-   [react/view styles/profile-header-name-container
-    [react/text {:style           styles/profile-name-text
-                 :number-of-lines 1}
-     name]]])
-
-(defn profile-header-edit [{:keys [name] :as contact}
-                           icon-options on-change-text-event]
-  [react/view styles/profile-header-edit
-   [react/touchable-highlight {:on-press #(show-profile-icon-actions icon-options)}
-    [react/view styles/modal-menu
-     [chat-icon.screen/my-profile-icon {:account contact
-                                        :edit?   true}]]]
-   [react/view styles/profile-header-name-container
-    [profile-name-input name on-change-text-event]]])
-
-(defn profile-header [contact editing? options on-change-text-event]
-  (if editing?
-    [profile-header-edit contact options on-change-text-event]
-    [profile-header-display contact]))
 
 (defn profile-actions [{:keys [pending? whisper-identity dapp?]} chat-id]
   [react/view action-button.styles/actions-list
@@ -141,7 +104,7 @@
      value]]
    (when options
      [react/touchable-highlight {:on-press #(list-selection/show {:options options})}
-      [react/view styles/modal-menu
+      [react/view profile.components.styles/modal-menu
        [vector-icons/icon :icons/options {:container-style styles/profile-info-item-button}]]])])
 
 (defn- toolbar [label value]
@@ -209,7 +172,7 @@
     [react/text {:style styles/settings-item-text}
      (i18n/label label-kw)]
     [react/text {:style      styles/settings-item-value
-                 :uppercase? component.styles/uppercase?} value]
+                 :uppercase? components.styles/uppercase?} value]
     (when active?
       [vector-icons/icon :icons/forward {:color colors/gray}])]])
 
@@ -263,7 +226,7 @@
    [react/view styles/share-contact-code
     [react/view styles/share-contact-code-text-container
      [react/text {:style      styles/share-contact-code-text
-                  :uppercase? component.styles/uppercase?}
+                  :uppercase? components.styles/uppercase?}
       (i18n/label :t/share-contact-code)]]
     [react/view styles/share-contact-icon-container
      [vector-icons/icon :icons/qr {:color colors/blue}]]]])
@@ -279,7 +242,7 @@
          [my-profile-toolbar])
        [react/scroll-view
         [react/view styles/profile-form
-         [profile-header shown-account editing? profile-icon-options :my-profile/update-name]]
+         [profile.components/profile-header shown-account editing? profile-icon-options :my-profile/update-name]]
         [react/view action-button.styles/actions-list
          [share-contact-code current-account public-key]]
         [react/view styles/profile-info-container
@@ -295,7 +258,7 @@
      [network-info]
      [react/scroll-view
       [react/view styles/profile-form
-       [profile-header contact false nil nil]]
+       [profile.components/profile-header contact false nil nil]]
       [common/form-spacer]
       [profile-actions contact chat-id]
       [common/form-spacer]
@@ -325,7 +288,7 @@
     {:on-press #(re-frame/dispatch [:group-chat-profile/start-editing])}
     [react/view
      [react/text {:style      common.styles/label-action-text
-                  :uppercase? component.styles/uppercase?} (i18n/label :t/edit)]]]])
+                  :uppercase? components.styles/uppercase?} (i18n/label :t/edit)]]]])
 
 (defn group-chat-profile-edit-toolbar []
   [toolbar/toolbar {}
@@ -375,7 +338,7 @@
          [group-chat-profile-toolbar])
        [react/scroll-view
         [react/view styles/profile-form
-         [profile-header shown-chat editing? nil :set-group-chat-name]
+         [profile.components/profile-header shown-chat editing? nil :set-group-chat-name]
          [list/action-list actions
           {:container-style    action-section-style
            :action-style       action-style
