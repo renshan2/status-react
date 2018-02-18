@@ -18,7 +18,7 @@
 (def profile-info-item-button
   {:padding 16})
 
-(def profile-header
+(def profile-header-display
   {:flex-direction  :column
    :justify-content :center
    :align-items     :center})

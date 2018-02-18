@@ -56,16 +56,6 @@
       [(actions/opts [{:action #(re-frame/dispatch [:hide-contact contact])
                        :label  (i18n/label :t/remove-from-contacts)}])])]])
 
-(defn profile-name-input [name]
-  [react/view
-   [react/text-input
-    {:style          styles/profile-name-input-text
-     :placeholder    ""
-     :default-value  name
-     :auto-focus     true
-     :on-focus       #(re-frame/dispatch [:my-profile/edit-profile])
-     :on-change-text #(re-frame/dispatch [:my-profile/update-name %])}]])
-
 (def profile-icon-options
   [{:label  (i18n/label :t/image-source-gallery)
     :action #(re-frame/dispatch [:my-profile/update-picture])}
@@ -77,8 +67,25 @@
                                   #(utils/show-popup (i18n/label :t/error)
                                                      (i18n/label :t/camera-access-error))]))}])
 
-(defn profile-header [{:keys [name] :as contact}]
-  [react/view styles/profile-header
+(defn profile-name-input [name on-focus-event on-change-text-event]
+  [react/view
+   [react/text-input
+    {:style          styles/profile-name-input-text
+     :placeholder    ""
+     :default-value  name
+     :auto-focus     true
+     :on-focus       #(when on-focus-event
+                        (re-frame/dispatch [on-focus-event]))
+     :on-change-text #(when on-change-text-event
+                        (re-frame/dispatch [on-change-text-event %]))}]])
+
+(defn show-profile-icon-actions [options]
+  (when (seq options)
+    (list-selection/show {:title   (i18n/label :t/image-source-title)
+                          :options options})))
+
+(defn profile-header-display [{:keys [name] :as contact}]
+  [react/view styles/profile-header-display
    [chat-icon.screen/my-profile-icon {:account contact
                                       :edit?   false}]
    [react/view styles/profile-header-name-container
@@ -86,16 +93,20 @@
                  :number-of-lines 1}
      name]]])
 
-
-(defn profile-header-edit [{:keys [name] :as account}]
+(defn profile-header-edit [{:keys [name] :as contact}
+                           icon-options on-focus-event on-change-text-event]
   [react/view styles/profile-header-edit
-   [react/touchable-highlight {:on-press #(list-selection/show {:title   (i18n/label :t/image-source-title)
-                                                                :options profile-icon-options})}
+   [react/touchable-highlight {:on-press #(show-profile-icon-actions icon-options)}
     [react/view styles/modal-menu
-     [chat-icon.screen/my-profile-icon {:account account
+     [chat-icon.screen/my-profile-icon {:account contact
                                         :edit?   true}]]]
    [react/view styles/profile-header-name-container
-    [profile-name-input name]]])
+    [profile-name-input name on-focus-event on-change-text-event]]])
+
+(defn profile-header [contact editing? options on-focus-event on-change-text-event]
+  (if editing?
+    [profile-header-edit contact options on-focus-event on-change-text-event]
+    [profile-header-display contact]))
 
 (defn profile-actions [{:keys [pending? whisper-identity dapp?]} chat-id]
   [react/view action-button.styles/actions-list
@@ -264,20 +275,20 @@
   (letsubs [{:keys [public-key] :as current-account} [:get-current-account]
             editing?                                 [:get :my-profile/editing?]
             changed-account                          [:get :my-profile/profile]]
-    [react/view styles/profile
-     (if editing?
-       [my-profile-edit-toolbar]
-       [my-profile-toolbar])
-     [react/scroll-view
-      [react/view styles/profile-form
+    (let [shown-account (merge current-account changed-account)]
+      [react/view styles/profile
        (if editing?
-         [profile-header-edit (merge current-account changed-account)]
-         [profile-header current-account])]
-      [react/view action-button.styles/actions-list
-       [share-contact-code current-account public-key]]
-      [react/view styles/profile-info-container
-       [my-profile-settings current-account]]
-      [logout]]]))
+         [my-profile-edit-toolbar]
+         [my-profile-toolbar])
+       [react/scroll-view
+        [react/view styles/profile-form
+         [profile-header shown-account editing? profile-icon-options
+          :my-profile/edit-profile :my-profile/update-name]]
+        [react/view action-button.styles/actions-list
+         [share-contact-code current-account public-key]]
+        [react/view styles/profile-info-container
+         [my-profile-settings current-account]]
+        [logout]]])))
 
 (defview profile []
   (letsubs [contact [:contact]
@@ -288,7 +299,7 @@
      [network-info]
      [react/scroll-view
       [react/view styles/profile-form
-       [profile-header contact]]
+       [profile-header contact false nil nil nil]]
       [common/form-spacer]
       [profile-actions contact chat-id]
       [common/form-spacer]
@@ -329,24 +340,6 @@
                           :icon      :icons/ok
                           :icon-opts {:color colors/blue}}]])
 
-(defn group-chat-profile-header-edit [{:keys [name] :as account}]
-  [react/view styles/profile-header-edit
-   [react/touchable-highlight {}
-    [react/view styles/modal-menu
-     [chat-icon.screen/my-profile-icon {:account account
-                                        :edit?   true}]]]
-   [react/view styles/profile-header-name-container
-    [profile-name-input name]]])
-
-(defn group-chat-profile-header [{:keys [name] :as contact}]
-  [react/view styles/profile-header
-   [chat-icon.screen/my-profile-icon {:account contact
-                                      :edit?   false}]
-   [react/view styles/profile-header-name-container
-    [react/text {:style           styles/profile-name-text
-                 :number-of-lines 1}
-     name]]])
-
 (def action-section-style
   {:background-color colors/white})
 
@@ -380,17 +373,16 @@
   (letsubs [current-chat [:get-current-chat]
             editing?     [:get :group-chat-profile/editing?]
             changed-chat [:get :group-chat-profile/profile]]
-    [react/view styles/profile
-     (if editing?
-       [group-chat-profile-edit-toolbar]
-       [group-chat-profile-toolbar])
-     [react/scroll-view
-      [react/view styles/profile-form
+    (let [shown-chat (merge current-chat changed-chat)]
+      [react/view styles/profile
        (if editing?
-         [group-chat-profile-header-edit (merge current-chat changed-chat)]
-         [group-chat-profile-header current-chat])
-       [list/action-list actions
-        {:container-style    action-section-style
-         :action-style       action-style
-         :action-label-style action-label
-         :icon-opts          action-icon-opts}]]]]))
+         [group-chat-profile-edit-toolbar]
+         [group-chat-profile-toolbar])
+       [react/scroll-view
+        [react/view styles/profile-form
+         [profile-header shown-chat editing? nil nil nil]
+         [list/action-list actions
+          {:container-style    action-section-style
+           :action-style       action-style
+           :action-label-style action-label
+           :icon-opts          action-icon-opts}]]]])))
