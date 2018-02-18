@@ -20,7 +20,6 @@
             [status-im.ui.components.colors :as colors]
             [status-im.utils.utils :as utils]
             [status-im.utils.core :refer [hash-tag?]]
-            [status-im.utils.datetime :as time]
             [status-im.utils.config :as config]
             [status-im.utils.platform :as platform]
             [status-im.protocol.core :as protocol]
@@ -67,15 +66,13 @@
                                   #(utils/show-popup (i18n/label :t/error)
                                                      (i18n/label :t/camera-access-error))]))}])
 
-(defn profile-name-input [name on-focus-event on-change-text-event]
+(defn profile-name-input [name on-change-text-event]
   [react/view
    [react/text-input
     {:style          styles/profile-name-input-text
      :placeholder    ""
      :default-value  name
      :auto-focus     true
-     :on-focus       #(when on-focus-event
-                        (re-frame/dispatch [on-focus-event]))
      :on-change-text #(when on-change-text-event
                         (re-frame/dispatch [on-change-text-event %]))}]])
 
@@ -94,18 +91,18 @@
      name]]])
 
 (defn profile-header-edit [{:keys [name] :as contact}
-                           icon-options on-focus-event on-change-text-event]
+                           icon-options on-change-text-event]
   [react/view styles/profile-header-edit
    [react/touchable-highlight {:on-press #(show-profile-icon-actions icon-options)}
     [react/view styles/modal-menu
      [chat-icon.screen/my-profile-icon {:account contact
                                         :edit?   true}]]]
    [react/view styles/profile-header-name-container
-    [profile-name-input name on-focus-event on-change-text-event]]])
+    [profile-name-input name on-change-text-event]]])
 
-(defn profile-header [contact editing? options on-focus-event on-change-text-event]
+(defn profile-header [contact editing? options on-change-text-event]
   (if editing?
-    [profile-header-edit contact options on-focus-event on-change-text-event]
+    [profile-header-edit contact options on-change-text-event]
     [profile-header-display contact]))
 
 (defn profile-actions [{:keys [pending? whisper-identity dapp?]} chat-id]
@@ -282,8 +279,7 @@
          [my-profile-toolbar])
        [react/scroll-view
         [react/view styles/profile-form
-         [profile-header shown-account editing? profile-icon-options
-          :my-profile/edit-profile :my-profile/update-name]]
+         [profile-header shown-account editing? profile-icon-options :my-profile/update-name]]
         [react/view action-button.styles/actions-list
          [share-contact-code current-account public-key]]
         [react/view styles/profile-info-container
@@ -299,7 +295,7 @@
      [network-info]
      [react/scroll-view
       [react/view styles/profile-form
-       [profile-header contact false nil nil nil]]
+       [profile-header contact false nil nil]]
       [common/form-spacer]
       [profile-actions contact chat-id]
       [common/form-spacer]
@@ -320,7 +316,6 @@
     (let [{:accounts/keys [accounts current-account-id]} db]
       (-> {:db db}
           (update :db dissoc :group-chat-profile/editing?)))))
-
 
 (defn group-chat-profile-toolbar []
   [toolbar/toolbar {}
@@ -380,7 +375,7 @@
          [group-chat-profile-toolbar])
        [react/scroll-view
         [react/view styles/profile-form
-         [profile-header shown-chat editing? nil nil nil]
+         [profile-header shown-chat editing? nil :set-group-chat-name]
          [list/action-list actions
           {:container-style    action-section-style
            :action-style       action-style

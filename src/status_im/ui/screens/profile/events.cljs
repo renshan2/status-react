@@ -47,15 +47,6 @@
 (defn get-current-account [{:keys [:accounts/current-account-id] :as db}]
   (get-in db [:accounts/accounts current-account-id]))
 
-(handlers/register-handler-fx
-  :my-profile/edit-profile
-  (fn [{:keys [db]} [_ edit-status?]]
-    (let [new-db (-> db
-                     (assoc-in [:my-profile/profile :edit-status?] edit-status?)
-                     (update-in [:my-profile/profile]
-                                #(merge (select-keys (get-current-account db) db/account-profile-keys) %)))]
-      {:db new-db})))
-
 (defn valid-name? [name]
   (spec/valid? :profile/name name))
 

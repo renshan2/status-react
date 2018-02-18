@@ -163,8 +163,8 @@
                                        (select-keys db [:current-chat-id]))}))
 
 (register-handler-fx
-  :set-chat-name
-  (fn [{{:keys [current-chat-id new-chat-name] :as db} :db} _]
+  :set-group-chat-name
+  (fn [{{:keys [current-chat-id] :as db} :db} [_ new-chat-name]]
     {:db (assoc-in db [:chats current-chat-id :name] new-chat-name)
      ::save-chat-property [current-chat-id :name new-chat-name]}))
 
