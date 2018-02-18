@@ -59,7 +59,4 @@
          [group-name-view]
          [chat-group-members]
          [view styles/separator]
-         [group-chat-settings-btns]]]
-       (when save-btn-enabled?
-         [sticky-button (label :t/save) #(dispatch [:set-chat-name])
-          true])])))
+         [group-chat-settings-btns]]]])))

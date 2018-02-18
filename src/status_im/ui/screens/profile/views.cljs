@@ -45,7 +45,7 @@
                           :icon      :icons/ok
                           :icon-opts {:color colors/blue}}]])
 
-(defn profile-toolbar [contact]
+(defn profile-contact-toolbar [contact]
   [toolbar/toolbar {}
    toolbar/default-nav-back
    [toolbar/content-title ""]
@@ -291,7 +291,7 @@
             chat-id [:get :current-chat-id]]
     [react/view styles/profile
      [status-bar/status-bar]
-     [profile-toolbar contact]
+     [profile-contact-toolbar contact]
      [network-info]
      [react/scroll-view
       [react/view styles/profile-form
