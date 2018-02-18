@@ -29,6 +29,7 @@
             [status-im.ui.screens.group.reorder.views :refer [reorder-groups]]
 
             [status-im.ui.screens.profile.user.views :as profile.user]
+            [status-im.ui.screens.profile.contact.views :as profile.contact]
             [status-im.ui.screens.profile.views :as profile]
             [status-im.ui.screens.profile.photo-capture.views :refer [profile-photo-capture]]
             [status-im.ui.screens.wallet.send.views :refer [send-transaction send-transaction-modal]]
@@ -158,7 +159,7 @@
                           :new-chat new-chat
                           :qr-scanner qr-scanner
                           :chat chat
-                          :profile profile/profile
+                          :profile profile.contact/profile
                           :group-chat-profile profile/group-chat-profile
                           :discover-all-recent discover-recent/discover-all-recent
                           :discover-all-popular-hashtags discover-popular/discover-all-popular-hashtags
