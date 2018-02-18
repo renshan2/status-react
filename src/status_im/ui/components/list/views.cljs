@@ -170,3 +170,25 @@
           {:sections            (clj->js (map wrap-per-section-render-fn sections))
            :renderSectionHeader (wrap-render-section-header-fn render-section-header-fn)}
           (when platform/ios? {:SectionSeparatorComponent (fn [] (reagent/as-element section-separator))}))])
+
+(defn- render-action [{:keys [label icon action]}
+                      {:keys [action-style action-label-style icon-opts]}]
+  [react/touchable-highlight {:on-press action}
+   [react/view
+    [item
+     [item-icon {:icon      icon
+                 :style     (merge styles/action action-style)
+                 :icon-opts (merge {:color :white} icon-opts)}]
+     [item-primary-only {:style (merge styles/action-label action-label-style)}
+      label]
+     item-icon-forward]]])
+
+
+(defn action-list [actions {:keys [container-style action-separator-style] :as styles}]
+  [react/view (merge styles/action-list container-style)
+   [flat-list
+    {:separator (when platform/ios?
+                  [react/view (merge action-separator-style
+                                     styles/action-separator)])
+     :data      actions
+     :render-fn #(render-action % styles)}]])

@@ -136,7 +136,7 @@
   (fn [{db :db} [_ chat-id]]
     {:db (assoc db :new-chat-name (get-in db [:chats chat-id :name])
                    :group/group-type :chat-group)
-     :dispatch [:navigate-to :chat-group-settings]}))
+     :dispatch [:navigate-to :group-chat-profile]}))
 
 (register-handler-fx
   :add-new-group-chat-participants

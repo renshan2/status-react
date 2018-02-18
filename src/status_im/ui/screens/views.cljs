@@ -158,6 +158,7 @@
                           :qr-scanner qr-scanner
                           :chat chat
                           :profile profile/profile
+                          :group-chat-profile profile/group-chat-profile
                           :discover-all-recent discover-recent/discover-all-recent
                           :discover-all-popular-hashtags discover-popular/discover-all-popular-hashtags
                           :discover-search-results discover-search/discover-search-results

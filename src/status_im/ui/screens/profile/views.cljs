@@ -1,7 +1,6 @@
 (ns status-im.ui.screens.profile.views
   (:require-macros [status-im.utils.views :refer [defview letsubs]])
-  (:require [clojure.string :as string]
-            [re-frame.core :as re-frame]
+  (:require [re-frame.core :as re-frame]
             [status-im.i18n :as i18n]
             [status-im.ui.components.action-button.action-button :as action-button]
             [status-im.ui.components.action-button.styles :as action-button.styles]
@@ -24,7 +23,10 @@
             [status-im.utils.datetime :as time]
             [status-im.utils.config :as config]
             [status-im.utils.platform :as platform]
-            [status-im.protocol.core :as protocol]))
+            [status-im.protocol.core :as protocol]
+            [status-im.utils.handlers :as handlers]
+            [status-im.ui.components.list.views :as list]
+            [status-im.ui.components.styles :as components.styles]))
 
 (defn my-profile-toolbar []
   [toolbar/toolbar {}
@@ -54,24 +56,6 @@
       [(actions/opts [{:action #(re-frame/dispatch [:hide-contact contact])
                        :label  (i18n/label :t/remove-from-contacts)}])])]])
 
-(defn online-text [last-online]
-  (let [last-online-date (time/to-date last-online)
-        now-date         (time/now)]
-    (if (and (pos? last-online)
-             (<= last-online-date now-date))
-      (time/time-ago last-online-date)
-      (i18n/label :t/active-unknown))))
-
-(defn profile-badge [{:keys [name] :as contact}]
-  [react/view styles/profile-badge
-   [chat-icon.screen/my-profile-icon {:account contact
-                                      :edit?   false}]
-   [react/view styles/profile-badge-name-container
-    [react/text {:style           styles/profile-name-text
-                 :number-of-lines 1}
-     name]]])
-
-
 (defn profile-name-input [name]
   [react/view
    [react/text-input
@@ -93,15 +77,24 @@
                                   #(utils/show-popup (i18n/label :t/error)
                                                      (i18n/label :t/camera-access-error))]))}])
 
+(defn profile-header [{:keys [name] :as contact}]
+  [react/view styles/profile-header
+   [chat-icon.screen/my-profile-icon {:account contact
+                                      :edit?   false}]
+   [react/view styles/profile-header-name-container
+    [react/text {:style           styles/profile-name-text
+                 :number-of-lines 1}
+     name]]])
 
-(defn profile-badge-edit [{:keys [name] :as account}]
-  [react/view styles/profile-badge-edit
+
+(defn profile-header-edit [{:keys [name] :as account}]
+  [react/view styles/profile-header-edit
    [react/touchable-highlight {:on-press #(list-selection/show {:title   (i18n/label :t/image-source-title)
                                                                 :options profile-icon-options})}
     [react/view styles/modal-menu
      [chat-icon.screen/my-profile-icon {:account account
                                         :edit?   true}]]]
-   [react/view styles/profile-badge-name-container
+   [react/view styles/profile-header-name-container
     [profile-name-input name]]])
 
 (defn profile-actions [{:keys [pending? whisper-identity dapp?]} chat-id]
@@ -196,14 +189,6 @@
                :font  :medium}
    (str tag " ")])
 
-(defn colorize-status-hashtags [status]
-  (for [[i status] (map-indexed vector (string/split status #" "))]
-    (if (hash-tag? status)
-      ^{:key (str "item-" i)}
-      [tag-view status]
-      ^{:key (str "item-" i)}
-      (str status " "))))
-
 (defn settings-title [title]
   [react/text {:style styles/profile-settings-title}
    title])
@@ -286,8 +271,8 @@
      [react/scroll-view
       [react/view styles/profile-form
        (if editing?
-         [profile-badge-edit (merge current-account changed-account)]
-         [profile-badge current-account])]
+         [profile-header-edit (merge current-account changed-account)]
+         [profile-header current-account])]
       [react/view action-button.styles/actions-list
        [share-contact-code current-account public-key]]
       [react/view styles/profile-info-container
@@ -303,10 +288,109 @@
      [network-info]
      [react/scroll-view
       [react/view styles/profile-form
-       [profile-badge contact]]
+       [profile-header contact]]
       [common/form-spacer]
       [profile-actions contact chat-id]
       [common/form-spacer]
       [react/view styles/profile-info-container
        [profile-info contact]
        [common/bottom-shadow]]]]))
+
+;;; MOCK CODE BELOW \/
+
+(handlers/register-handler-fx
+  :group-chat-profile/start-editing
+  (fn [{:keys [db]} []]
+    {:db (assoc db :group-chat-profile/editing? true)}))
+
+(handlers/register-handler-fx
+  :group-chat-profile/save-profile
+  (fn [{:keys [db]} _]
+    (let [{:accounts/keys [accounts current-account-id]} db]
+      (-> {:db db}
+          (update :db dissoc :group-chat-profile/editing?)))))
+
+
+(defn group-chat-profile-toolbar []
+  [toolbar/toolbar {}
+   toolbar/default-nav-back
+   [toolbar/content-title ""]
+   [react/touchable-highlight
+    {:on-press #(re-frame/dispatch [:group-chat-profile/start-editing])}
+    [react/view
+     [react/text {:style      common.styles/label-action-text
+                  :uppercase? component.styles/uppercase?} (i18n/label :t/edit)]]]])
+
+(defn group-chat-profile-edit-toolbar []
+  [toolbar/toolbar {}
+   nil
+   [toolbar/content-title ""]
+   [toolbar/default-done {:handler   #(re-frame/dispatch [:group-chat-profile/save-profile])
+                          :icon      :icons/ok
+                          :icon-opts {:color colors/blue}}]])
+
+(defn group-chat-profile-header-edit [{:keys [name] :as account}]
+  [react/view styles/profile-header-edit
+   [react/touchable-highlight {}
+    [react/view styles/modal-menu
+     [chat-icon.screen/my-profile-icon {:account account
+                                        :edit?   true}]]]
+   [react/view styles/profile-header-name-container
+    [profile-name-input name]]])
+
+(defn group-chat-profile-header [{:keys [name] :as contact}]
+  [react/view styles/profile-header
+   [chat-icon.screen/my-profile-icon {:account contact
+                                      :edit?   false}]
+   [react/view styles/profile-header-name-container
+    [react/text {:style           styles/profile-name-text
+                 :number-of-lines 1}
+     name]]])
+
+(def action-section-style
+  {:background-color colors/white})
+
+(def action-style
+  {:background-color components.styles/color-blue4-transparent
+   :border-radius    50})
+
+(def action-label
+  {:color colors/blue})
+
+(def action-separator
+  {:height           1
+   :background-color colors/white-light-transparent
+   :margin-left      70})
+
+(def action-icon-opts
+  {:color colors/blue})
+
+(def actions
+  [{:label  "Add members"
+    :icon   :icons/add
+    :action #(js/alert "add members")}
+   {:label  "Clear history"
+    :icon   :icons/close
+    :action #(js/alert "clear history")}
+   {:label  "Leave group"
+    :icon   :icons/arrow-left
+    :action #(js/alert "leave group")}])
+
+(defview group-chat-profile []
+  (letsubs [current-chat [:get-current-chat]
+            editing?     [:get :group-chat-profile/editing?]
+            changed-chat [:get :group-chat-profile/profile]]
+    [react/view styles/profile
+     (if editing?
+       [group-chat-profile-edit-toolbar]
+       [group-chat-profile-toolbar])
+     [react/scroll-view
+      [react/view styles/profile-form
+       (if editing?
+         [group-chat-profile-header-edit (merge current-chat changed-chat)]
+         [group-chat-profile-header current-chat])
+       [list/action-list actions
+        {:container-style    action-section-style
+         :action-style       action-style
+         :action-label-style action-label
+         :icon-opts          action-icon-opts}]]]]))

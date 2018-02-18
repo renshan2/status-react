@@ -96,3 +96,18 @@
                      :margin-bottom 3}
    :ios             {:margin-top    10
                      :margin-bottom 2}})
+
+(def action-list
+  {:background-color colors/blue})
+
+(def action
+  {:background-color colors/white-transparent
+   :border-radius    50})
+
+(def action-label
+  {:color colors/white})
+
+(def action-separator
+  {:height           1
+   :background-color colors/white-light-transparent
+   :margin-left      70})

@@ -18,12 +18,12 @@
 (def profile-info-item-button
   {:padding 16})
 
-(def profile-badge
+(def profile-header
   {:flex-direction  :column
    :justify-content :center
    :align-items     :center})
 
-(def profile-badge-edit
+(def profile-header-edit
   {:flex-direction  :column
    :justify-content :center})
 
@@ -55,7 +55,7 @@
                 :border-bottom-width 2
                 :border-bottom-color styles/color-blue4}})
 
-(def profile-badge-name-container
+(def profile-header-name-container
   {:flex            1
    :justify-content :center})
 

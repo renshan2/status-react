@@ -17,17 +17,11 @@
           :height        40
           :border-radius 20}))
 
-(defn default-chat-icon-menu-item [color]
+(defn default-chat-icon-profile [color size]
   (merge (default-chat-icon color)
-         {:width         24
-          :height        24
-          :border-radius 12}))
-
-(defn default-chat-icon-profile [color]
-  (merge (default-chat-icon color)
-         {:width         64
-          :height        64
-          :border-radius 32}))
+         {:width         size
+          :height        size
+          :border-radius (/ size 2)}))
 
 (defn default-chat-icon-view-action [color]
   (merge (default-chat-icon color)
