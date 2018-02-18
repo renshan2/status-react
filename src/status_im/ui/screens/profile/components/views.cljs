@@ -4,7 +4,13 @@
             [status-im.ui.components.list-selection :as list-selection]
             [status-im.i18n :as i18n]
             [status-im.ui.components.chat-icon.screen :as chat-icon.screen]
-            [status-im.ui.screens.profile.components.styles :as styles]))
+            [status-im.ui.screens.profile.components.styles :as styles]
+            [status-im.ui.components.common.common :as common]
+            [status-im.ui.components.styles :as components.styles]
+            [status-im.ui.components.icons.vector-icons :as vector-icons]
+            [status-im.ui.components.colors :as colors]))
+
+;; profile header elements
 
 (defn profile-name-input [name on-change-text-event]
   [react/view
@@ -44,3 +50,24 @@
   (if editing?
     [profile-header-edit contact options on-change-text-event]
     [profile-header-display contact]))
+
+;; settings items elements
+
+(defn settings-item-separator []
+  [common/separator styles/settings-item-separator])
+
+(defn settings-title [title]
+  [react/text {:style styles/settings-item-title}
+   title])
+
+(defn settings-item [label-kw value action-fn active?]
+  [react/touchable-highlight
+   {:on-press action-fn
+    :disabled (not active?)}
+   [react/view styles/settings-item
+    [react/text {:style styles/settings-item-text}
+     (i18n/label label-kw)]
+    [react/text {:style      styles/settings-item-value
+                 :uppercase? components.styles/uppercase?} value]
+    (when active?
+      [vector-icons/icon :icons/forward {:color colors/gray}])]])

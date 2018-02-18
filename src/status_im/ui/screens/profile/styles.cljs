@@ -3,18 +3,6 @@
             [status-im.ui.components.colors :as colors])
   (:require-macros [status-im.utils.styles :refer [defstyle]]))
 
-(def profile
-  {:flex             1
-   :background-color colors/white
-   :flex-direction   :column})
-
-(def profile-form
-  {:background-color colors/white
-   :padding          16})
-
-(defstyle profile-info-container
-  {:background-color colors/white})
-
 (def profile-info-item-button
   {:padding 16})
 
@@ -34,14 +22,6 @@
 (defn profile-info-text-container [options]
   {:flex          1
    :padding-right (if options 16 40)})
-
-(defstyle profile-settings-title
-  {:color         colors/gray
-   :margin-left   16
-   :margin-top    18
-   :margin-bottom 20
-   :font-size     14
-   :ios           {:letter-spacing -0.2}})
 
 (defstyle profile-info-title
   {:color         colors/gray
@@ -63,31 +43,6 @@
   (merge profile-setting-text
          {:color colors/gray}))
 
-(def settings-item-separator
-  {:margin-left 16})
-
-(defstyle settings-item
-  {:padding-horizontal 16
-   :flex-direction     :row
-   :align-items        :center
-   :background-color   colors/white
-   :height             52})
-
-(defstyle settings-item-text
-  {:flex      1
-   :font-size 15
-   :ios       {:letter-spacing -0.2}
-   :android   {:color colors/black}})
-
-(def settings-item-value
-  {:padding-right 10
-   :font-size     15
-   :color         colors/gray})
-
-(defstyle logout-text
-  (merge settings-item-text
-         {:color        colors/red}))
-
 (defstyle profile-name-input
   {:color   styles/text1-color
    :ios     {:font-size      17
@@ -101,31 +56,3 @@
              :padding-bottom 0}})
 
 (def network-info {:background-color :white})
-
-(def share-contact-code
-  {:margin-horizontal 16
-   :flex-direction    :row
-   :justify-content   :space-between
-   :align-items       :center
-   :height            42
-   :border-radius     8
-   :background-color  styles/color-blue4-transparent})
-
-(def share-contact-code-text-container
-  {:padding-left    16
-   :padding-bottom  1
-   :flex            0.9
-   :flex-direction  :row
-   :justify-content :center
-   :align-items     :center})
-
-(def share-contact-code-text
-  {:color     colors/blue
-   :font-size 15})
-
-(def share-contact-icon-container
-  {:border-radius   50
-   :flex            0.1
-   :padding-right   5
-   :align-items     :center
-   :justify-content :center})

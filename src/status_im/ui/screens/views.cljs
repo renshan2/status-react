@@ -28,6 +28,7 @@
                                                                    add-participants-toggle-list]]
             [status-im.ui.screens.group.reorder.views :refer [reorder-groups]]
 
+            [status-im.ui.screens.profile.user.views :as profile.user]
             [status-im.ui.screens.profile.views :as profile]
             [status-im.ui.screens.profile.photo-capture.views :refer [profile-photo-capture]]
             [status-im.ui.screens.wallet.send.views :refer [send-transaction send-transaction-modal]]
@@ -176,7 +177,7 @@
                           :recent-recipients recent-recipients
                           :recipient-qr-code recipient-qr-code
                           :contact-code contact-code
-                          :profile-qr-viewer profile/qr-viewer
+                          :profile-qr-viewer profile.user/qr-viewer
                           (throw (str "Unknown view: " current-view)))
               main-screen-view (create-main-screen-view current-view)]
           [main-screen-view common-styles/flex
