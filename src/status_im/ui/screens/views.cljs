@@ -30,7 +30,7 @@
 
             [status-im.ui.screens.profile.user.views :as profile.user]
             [status-im.ui.screens.profile.contact.views :as profile.contact]
-            [status-im.ui.screens.profile.views :as profile]
+            [status-im.ui.screens.profile.group-chat.views :as profile.group-chat]
             [status-im.ui.screens.profile.photo-capture.views :refer [profile-photo-capture]]
             [status-im.ui.screens.wallet.send.views :refer [send-transaction send-transaction-modal]]
             [status-im.ui.screens.wallet.choose-recipient.views :refer [choose-recipient]]
@@ -160,7 +160,7 @@
                           :qr-scanner qr-scanner
                           :chat chat
                           :profile profile.contact/profile
-                          :group-chat-profile profile/group-chat-profile
+                          :group-chat-profile profile.group-chat/group-chat-profile
                           :discover-all-recent discover-recent/discover-all-recent
                           :discover-all-popular-hashtags discover-popular/discover-all-popular-hashtags
                           :discover-search-results discover-search/discover-search-results

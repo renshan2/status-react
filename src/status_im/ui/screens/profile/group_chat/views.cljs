@@ -1,21 +1,17 @@
-(ns status-im.ui.screens.profile.views
+(ns status-im.ui.screens.profile.group-chat.views
   (:require-macros [status-im.utils.views :refer [defview letsubs]])
-  (:require [re-frame.core :as re-frame]
-            [status-im.i18n :as i18n]
-            [status-im.ui.components.common.styles :as common.styles]
+  (:require [status-im.ui.screens.profile.group-chat.style :as style]
             [status-im.ui.components.react :as react]
-            [status-im.ui.components.colors :as colors]
-            [status-im.ui.components.toolbar.view :as toolbar]
-            [status-im.ui.components.colors :as colors]
-            [status-im.utils.core :refer [hash-tag?]]
-            [status-im.utils.handlers :as handlers]
-            [status-im.ui.components.list.views :as list]
-            [status-im.ui.components.styles :as components.styles]
+            [status-im.ui.screens.profile.components.styles :as profile.components.styles]
             [status-im.ui.screens.profile.components.views :as profile.components]
-            [status-im.ui.screens.profile.components.styles :as profile.components.styles]))
-
-
-;;; MOCK CODE BELOW \/
+            [status-im.ui.components.list.views :as list]
+            [status-im.ui.components.colors :as colors]
+            [status-im.ui.components.styles :as components.styles]
+            [status-im.ui.components.toolbar.view :as toolbar]
+            [re-frame.core :as re-frame]
+            [status-im.ui.components.common.styles :as common.styles]
+            [status-im.i18n :as i18n]
+            [status-im.utils.handlers :as handlers]))
 
 (handlers/register-handler-fx
   :group-chat-profile/start-editing
@@ -47,24 +43,6 @@
                           :icon      :icons/ok
                           :icon-opts {:color colors/blue}}]])
 
-(def action-section-style
-  {:background-color colors/white})
-
-(def action-style
-  {:background-color components.styles/color-blue4-transparent
-   :border-radius    50})
-
-(def action-label
-  {:color colors/blue})
-
-(def action-separator
-  {:height           1
-   :background-color colors/white-light-transparent
-   :margin-left      70})
-
-(def action-icon-opts
-  {:color colors/blue})
-
 (def actions
   [{:label  "Add members"
     :icon   :icons/add
@@ -89,7 +67,7 @@
         [react/view profile.components.styles/profile-form
          [profile.components/profile-header shown-chat editing? nil :set-group-chat-name]
          [list/action-list actions
-          {:container-style    action-section-style
-           :action-style       action-style
-           :action-label-style action-label
-           :icon-opts          action-icon-opts}]]]])))
+          {:container-style    style/action-container
+           :action-style       style/action
+           :action-label-style style/action-label
+           :icon-opts          style/action-icon-opts}]]]])))

@@ -1,18 +1,14 @@
 (ns status-im.ui.screens.profile.events
   (:require [clojure.spec.alpha :as spec]
-            [clojure.string :as string]
             [re-frame.core :as re-frame]
             [status-im.ui.components.react :refer [show-image-picker]]
-            [status-im.constants :as const]
             [status-im.chat.constants :as chat-const]
-            [status-im.ui.screens.profile.db :as db]
             [status-im.ui.screens.profile.navigation]
             [status-im.ui.screens.accounts.events :as accounts-events]
             [status-im.chat.events :as chat-events]
             [status-im.chat.events.input :as input-events]
             [status-im.utils.handlers :as handlers]
             [status-im.utils.image-processing :refer [img->base64]]
-            [status-im.utils.core :as utils]
             [taoensso.timbre :as log]))
 
 (re-frame/reg-fx
