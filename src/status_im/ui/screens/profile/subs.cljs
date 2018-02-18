@@ -36,16 +36,3 @@
   (fn [[current-account profile]]
     (not= (select-keys current-account account-profile-keys)
           (select-keys profile account-profile-keys))))
-
-(reg-sub :my-profile.drawer/save-event
-  :<- [:get-current-account]
-  :<- [:get :my-profile/drawer]
-  (fn [[{:keys [name status]} {new-name :name new-status :status}]]
-    (cond
-      (and new-name
-           (not= name new-name))
-      :my-profile.drawer/save-name
-
-      (and status
-           (not= status new-status))
-      :my-profile.drawer/save-status)))
