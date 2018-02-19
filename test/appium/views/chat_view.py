@@ -102,12 +102,6 @@ class MoreUsersButton(BaseButton):
         self.locator = self.Locator.xpath_selector("//android.widget.TextView[contains(@text, 'MORE')]")
 
 
-class UserProfileIconTopRight(BaseButton):
-    def __init__(self, driver):
-        super(UserProfileIconTopRight, self).__init__(driver)
-        self.locator = self.Locator.accessibility_id('chat-icon')
-
-
 class UserProfileDetails(BaseButton):
     def __init__(self, driver):
         super(UserProfileDetails, self).__init__(driver)
@@ -130,6 +124,12 @@ class CommandsButton(BaseButton):
         self.locator = self.Locator.xpath_selector('(// android.view.ViewGroup[@ content-desc="icon"])[3]')
 
 
+class ViewProfileButton(BaseButton):
+    def __init__(self, driver):
+        super(ViewProfileButton, self).__init__(driver)
+        self.locator = self.Locator.xpath_selector('//*[@text="View profile"]')
+
+
 class ChatView(BaseView):
     def __init__(self, driver):
         super(ChatView, self).__init__(driver)
@@ -147,13 +147,13 @@ class ChatView(BaseView):
         self.delete_chat_button = DeleteChatButton(self.driver)
 
         self.chat_settings = ChatSettings(self.driver)
+        self.view_profile_button = ViewProfileButton(self.driver)
         self.more_users_button = MoreUsersButton(self.driver)
         self.user_options = UserOptions(self.driver)
         self.remove_button = RemoveButton(self.driver)
 
         self.first_recipient_button = FirstRecipient(self.driver)
 
-        self.user_profile_icon_top_right = UserProfileIconTopRight(self.driver)
         self.user_profile_details = UserProfileDetails(self.driver)
 
         self.open_in_browser_button = OpenInBrowserButton(self.driver)
