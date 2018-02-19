@@ -108,21 +108,16 @@ class SingleDeviceTestCase(AbstractTestCase):
 
     def setup_method(self, method):
         self.update_test_info_dict()
+
         capabilities = {'local': {'executor': self.executor_local,
                                   'capabilities': self.capabilities_local},
                         'sauce': {'executor': self.executor_sauce_lab,
                                   'capabilities': self.capabilities_sauce_lab}}
-        counter = 0
-        self.driver = None
-        while not self.driver and counter <= 3:
-            try:
-                self.driver = webdriver.Remote(capabilities[self.environment]['executor'],
-                                               capabilities[self.environment]['capabilities'])
-                self.driver.implicitly_wait(self.implicitly_wait)
-                test_data.test_info[test_data.test_name]['jobs'].append(self.driver.session_id)
-                break
-            except WebDriverException:
-                counter += 1
+
+        self.driver = webdriver.Remote(capabilities[self.environment]['executor'],
+                                       capabilities[self.environment]['capabilities'])
+        self.driver.implicitly_wait(self.implicitly_wait)
+        test_data.test_info[test_data.test_name]['jobs'].append(self.driver.session_id)
 
     def teardown_method(self, method):
         if self.environment == 'sauce':
