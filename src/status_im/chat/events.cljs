@@ -16,8 +16,7 @@
             [status-im.data-store.requests :as requests-store]
             [status-im.data-store.messages :as messages-store]
             [status-im.data-store.pending-messages :as pending-messages-store]
-            [status-im.ui.screens.navigation :as navigation]
-            [status-im.protocol.core :as protocol]
+            [status-im.ui.screens.navigation :as navigation] 
             [status-im.constants :as const]
             [status-im.ui.components.list-selection :as list-selection]
             [status-im.chat.events.input :as input-events]
@@ -110,7 +109,7 @@
 (re-frame/reg-fx
   :protocol-send-seen
   (fn [params]
-    (protocol/send-seen! params)))
+    #_(protocol/send-seen! params)))
 
 (re-frame/reg-fx
   :browse
