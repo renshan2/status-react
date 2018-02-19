@@ -9,7 +9,7 @@ class PlusButton(BaseButton):
     def __init__(self, driver):
         super(PlusButton, self).__init__(driver)
         self.locator = self.Locator.xpath_selector(
-            "//android.view.ViewGroup/android.widget.TextView[@text='+']")
+            "//*[@text='+']")
 
     def navigate(self):
         from views.start_new_chat_view import StartNewChatView

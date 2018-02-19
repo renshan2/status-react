@@ -11,16 +11,6 @@ class ChatMessageInput(BaseEditBox):
         self.locator = self.Locator.accessibility_id('chat-message-input')
 
 
-class SendMessageButton(BaseButton):
-    def __init__(self, driver):
-        super(SendMessageButton, self).__init__(driver)
-        self.locator = self.Locator.accessibility_id("send-message-button")
-
-    def click(self):
-        self.find_element().click()
-        info('Tap on %s' % self.name)
-
-
 class AddToContacts(BaseButton):
     def __init__(self, driver):
         super(AddToContacts, self).__init__(driver)
@@ -38,17 +28,13 @@ class UserNameText(BaseText):
 class TransactionPopupText(BaseText):
     def __init__(self, driver):
         super(TransactionPopupText, self).__init__(driver)
-        self.locator = self.Locator.xpath_selector("//*[@text='Send transaction']")
+        self.locator = self.Locator.xpath_selector("//*[@text='Specify amount']")
 
 
 class SendCommand(BaseButton):
     def __init__(self, driver):
         super(SendCommand, self).__init__(driver)
         self.locator = self.Locator.xpath_selector("//*[@text='/send']")
-
-    def click(self):
-        desired_element = TransactionPopupText(self.driver)
-        self.click_until_presence_of_element(desired_element=desired_element)
 
 
 class RequestCommand(BaseButton):
@@ -60,7 +46,7 @@ class RequestCommand(BaseButton):
 class ChatOptions(BaseButton):
     def __init__(self, driver):
         super(ChatOptions, self).__init__(driver)
-        self.locator = self.Locator.accessibility_id('chat-menu')
+        self.locator = self.Locator.xpath_selector('(//android.view.ViewGroup[@content-desc="icon"])[2]')
 
 
 class MembersButton(BaseButton):
@@ -138,15 +124,21 @@ class OpenInBrowserButton(BaseButton):
         return BaseWebView(self.driver)
 
 
+class CommandsButton(BaseButton):
+    def __init__(self, driver):
+        super(CommandsButton, self).__init__(driver)
+        self.locator = self.Locator.xpath_selector('(// android.view.ViewGroup[@ content-desc="icon"])[3]')
+
+
 class ChatView(BaseView):
     def __init__(self, driver):
         super(ChatView, self).__init__(driver)
 
         self.chat_message_input = ChatMessageInput(self.driver)
-        self.send_message_button = SendMessageButton(self.driver)
         self.add_to_contacts = AddToContacts(self.driver)
         self.user_name_text = UserNameText(self.driver)
 
+        self.commands_button = CommandsButton(self.driver)
         self.send_command = SendCommand(self.driver)
         self.request_command = RequestCommand(self.driver)
 
